@@ -1,0 +1,128 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block content %}
+<!-- Контент -->
+<div class="container">
+    <section class="section2">
+        <div class="right-layout">
+            <div class="right-text">
+                <div class="title2">
+                    <h3 class="title2-1">
+                        한국 요리의 히트작
+                    </h3>
+                    Хиты корейской кухни
+                </div>
+                <p class="label-ru">
+                    Эти блюда – результат многовековой истории Кореи. От старинных рецептов, передававшихся из поколения в поколение, до традиционных уличных закусок Сеула – каждый рецепт хранит в себе культуру, обычаи и вкусовые предпочтения корейского народа. Попробовав их, вы ощущаете дух истории этой удивительной страны
+                </p>
+            </div>
+            <div class="right-image">
+                <img id="restaurant-img" src="{% static 'images/Korean-Sauces.jpg' %}" alt="Ресторан Soju & Seoul">
+            </div>
+        </div>
+    </section>
+
+    <!-- 2 -->
+    <div class="right-layout">
+        <div class="bottom-text">
+            <div class="title2">
+                <h3 class="title2-1">
+                    김치
+                </h3>
+                Кимчи
+            </div>
+            <p class="label-ru">
+                Искусно ферментированная капуста с пикантными специями, раскрывающая богатство корейской кухни в каждом кусочке. Это традиционное корейское блюдо передаёт рецепты и культуру страны на протяжении столетий
+            </p>
+        </div>
+        <div class="bottom-image">
+            <img src="{% static 'images/кимчи 2.jpg' %}" alt="кимчи">
+        </div>
+    </div>
+
+    <!-- 3 -->
+    <div class="right-layout">
+        <div class="right-text">
+            <div class="title2">
+                <h3 class="title2-1">
+                    김밥
+                </h3>
+                Кимбап
+            </div><br> <br>
+            <p class="label-ru">
+                Лёгкая и вкусная закуска: рис, свежие овощи, омлет и мясо, завернутые в лист нори. Она отражает культуру простых и питательных блюд, любимых в повседневной жизни корейцев
+            </p>
+        </div>
+        <div class="right-image">
+            <img src="{% static 'images/Кимбап.jpg' %}" alt="Кимбап">
+        </div>
+    </div>
+
+    <!-- 4 -->
+    <div class="right-layout">
+        <div class="bottom-text">
+            <div class="title2">
+                <h3 class="title2-1">
+                    떡볶이
+                </h3>
+                Токпокки
+            </div>
+            <p class="label-ru">
+                Популярные в Корее мягкие рисовые лепёшки в остро-сладком соусе. Это блюдо объединяет гастрономические традиции и современную уличную культуру
+            </p>
+        </div>
+        <div class="bottom-image">
+            <img src="{% static 'images/Токпоки.jpg' %}" alt="Токпоки">
+        </div>
+    </div>
+
+    <!-- 5 -->
+    <div class="right-layout">
+        <div class="right-text">
+            <div class="title2">
+                <h3 class="title2-1">
+                    짜장면
+                </h3>
+                Чаджанмен
+            </div>
+            <br>
+            <br>
+            <p class="label-ru">
+                Лапша в тёмном соевом соусе с обжаренным мясом и овощами. Насыщенный вкус и аромат делают это блюдо любимым в Корее и за её пределами
+            </p>
+        </div>
+        <div class="right-image">
+            <img src="{% static 'images/Чаджанмен.jpg' %}" alt="Чаджанмен">
+        </div>
+    </div>
+
+    <!-- 6 -->
+    <div class="right-layout">
+        <div class="bottom-text">
+            <div class="title2">
+                <h3 class="title2-1">
+                    소주
+                </h3>
+                Соджу
+            </div>
+            <p class="label-ru">
+                Лёгкий и ароматный корейский алкогольный напиток, который идеально дополняет богатый вкус традиционных блюд. В нашем ресторане Soju & Seoul вы можете попробовать оригинальный соджу, подаваемый в сочетании с фирменными закусками и блюдами. Этот напиток олицетворяет атмосферу Сеула и позволяет ощутить корейскую культуру в каждой капле
+            </p>
+        </div>
+        <div class="bottom-image">
+            <img src="{% static 'images/Соджу.jpg' %}" alt="Соджу">
+        </div>
+    </div>
+
+    <!-- Футер -->
+    <div class="right-layout">
+        <div class="bottom-text">
+            <p class="footer2">
+                В Soju & Seoul каждая закуска — это маленькое путешествие в сердце Кореи. От хрустящих овощных блинчиков до пикантного кимчи и нежного кimbap — наши закуски готовятся по традиционным рецептам, с любовью к вкусу и свежести ингредиентов. Они идеально дополняют основные блюда и напитки, создавая полный гастрономический опыт настоящей корейской кухни
+            </p>
+        </div>
+    </div>
+</div>
+{% endblock %}
+

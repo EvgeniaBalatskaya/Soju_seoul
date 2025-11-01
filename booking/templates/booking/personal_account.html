@@ -1,0 +1,143 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<section class="container">
+    <div class="bottom-content">
+        <div class="bottom-text text-center">
+
+
+            <!-- История бронирований -->
+            <div class="title2 ">История бронирований</div>
+            {% if bookings %}
+                <div class="booking-history mx-auto">
+                    <table class="booking-table">
+                        <thead>
+                            <tr>
+                                <th>Дата</th>
+                                <th>Время</th>
+                                <th>Гостей</th>
+                                <th>Статус</th>
+                                <th>Дата создания</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for booking in bookings %}
+                            <tr>
+                                <td>{{ booking.date }}</td>
+                                <td>{{ booking.time }}</td>
+                                <td>{{ booking.guests }}</td>
+                                <td>
+                                    {% if booking.is_active %}
+                                        <span class="status-text active">Активно</span>
+                                    {% else %}
+                                        <span class="status-text cancelled">Отменено</span>
+                                    {% endif %}
+                                </td>
+                                <td>{{ booking.created_at|date:"d.m.Y H:i" }}</td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            {% else %}
+                <p class="no-history">Вы ещё не делали бронирований</p>
+            {% endif %}
+
+            <!-- Кнопка внизу -->
+            <div class="text-center mt-5">
+                {% if active_booking %}
+                    <a href="{% url 'cancel_booking' active_booking.id %}" class="btn btn-cancel"
+                       onclick="return confirm('Вы уверены, что хотите отменить бронирование?')">Отменить бронирование</a>
+                {% else %}
+                    <a href="{% url 'booking_page' %}" class="btn btn-booking">Забронировать стол</a>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+</section>
+
+<style>
+/* Стили для таблицы в стиле модалки */
+.booking-history {
+    max-width: 1000px;
+    margin: 40px auto;
+}
+
+.booking-table {
+    width: 100%;
+    border-collapse: collapse;
+    font-family: 'Klukva', sans-serif;
+    font-size: 1.3rem;
+    background: #fff;
+    border-radius: 4px;
+    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.2);
+    overflow: hidden;
+}
+
+.booking-table th {
+    background-color: #f8f9fa;
+    color: #333;
+    padding: 20px 25px;
+    text-align: center;
+    font-weight: 500;
+    font-size: 1.4rem;
+    border-bottom: 2px solid #e0e0e0;
+    font-family: 'pobeda', sans-serif;
+}
+
+.booking-table td {
+    padding: 18px 25px;
+    text-align: center;
+    border-bottom: 1px solid #f0f0f0;
+    color: #333;
+    font-weight: 300;
+}
+
+.booking-table tr:hover {
+    background-color: #fafafa;
+}
+
+.booking-table tr:last-child td {
+    border-bottom: none;
+}
+
+.status-text {
+    font-size: 1.2rem;
+    font-weight: 400;
+    font-family: 'pobeda', sans-serif;
+}
+
+.status-text.active {
+    color: #2e7d32;
+}
+
+.status-text.cancelled {
+    color: #c62828;
+}
+
+.no-history {
+    font-family: 'Klukva', sans-serif;
+    font-size: 1.5rem;
+    color: #666;
+    margin-top: 40px;
+    font-weight: 300;
+}
+
+/* Адаптивность */
+@media (max-width: 768px) {
+    .booking-table {
+        font-size: 1.1rem;
+    }
+
+    .booking-table th,
+    .booking-table td {
+        padding: 15px 12px;
+    }
+
+    .booking-history {
+        margin: 30px auto;
+        max-width: 95%;
+    }
+}
+</style>
+{% endblock %}

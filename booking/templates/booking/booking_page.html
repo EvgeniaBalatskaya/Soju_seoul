@@ -1,0 +1,28 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<div class="container">
+    <div class="right-layout">
+        <div class="title2">
+            Забронировать стол
+            <h3 class="title-booking">
+                한국 문화 레스토랑
+            </h3>
+        </div>
+    </div>
+</div>
+
+<!-- Блок бронирования -->
+<div class="booking-container">
+    <!-- Пользователь не авторизован -->
+    <div class="booking-guest text-center">
+        <p class="booking-text">
+            Откройте мир корейской кухни полностью!<br>
+            После регистрации вы сможете забронировать столик на идеальное время,
+            отслеживать историю своих визитов и легко управлять бронированиями —
+            всё для вашего комфорта в Soju & Seoul.
+        </p>
+        <a href="#" class="btn btn-booking" data-bs-toggle="modal" data-bs-target="#loginModal">Войти</a>
+    </div>
+</div>
+{% endblock %}

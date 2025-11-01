@@ -1,0 +1,249 @@
+<!-- templates/base.html -->
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <title>{% block title %}Soju & Seoul{% endblock %}</title>
+
+    {% load static %}
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="{% static 'css/style.css' %}">
+    <link rel="icon" href="{% static 'images/favicon.png' %}">
+
+</head>
+<body>
+    <!-- Навбар -->
+    <div class="container">
+        <nav class="navbar-custom">
+            <div class="navbar-title">
+                <a href="{% url 'home' %}">Soju & Seoul</a>
+                <span class="navbar-subtitle">한국 요리 레스토랑</span>
+            </div>
+            <div class="navbar-links">
+<a href="{% url 'home' %}#cont">Контакты</a>
+<a href="{% url 'home' %}#about">О нас</a>
+{% if user.is_authenticated %}
+    <a href="{% url 'logout_user' %}" class="btn-login">Выйти</a>
+                    <a href="{% url 'personal_account' %}" class="btn-login" title="Личный кабинет">
+<a href="{% url 'personal_account' %}" class="btn-login" title="Личный кабинет">
+    <svg width="28" height="28" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+        <circle cx="12" cy="8" r="3.5" stroke="#222222" stroke-width="1.5" stroke-linecap="round"></circle>
+        <path d="M4.84913 16.9479C5.48883 14.6034 7.91473 13.5 10.345 13.5H13.655C16.0853 13.5 18.5112 14.6034 19.1509 16.9479C19.282 17.4287 19.3868 17.9489 19.4462 18.5015C19.5052 19.0507 19.0523 19.5 18.5 19.5H5.5C4.94772 19.5 4.49482 19.0507 4.55382 18.5015C4.6132 17.9489 4.71796 17.4287 4.84913 16.9479Z"
+              stroke="#222222" stroke-width="1.5" stroke-linecap="round"></path>
+    </svg>
+</a>
+    </a>
+{% else %}
+    <a href="#" class="btn-login" data-bs-toggle="modal" data-bs-target="#loginModal">Войти</a>
+{% endif %}
+
+            </div>
+        </nav>
+    </div>
+
+    <!-- Основной контент страниц -->
+    <div class="container">
+        {% block content %}
+        {% endblock %}
+    </div>
+
+    <!-- Модалка входа -->
+    <div class="modal fade" id="loginModal" tabindex="-1" aria-labelledby="loginModalLabel" aria-hidden="true">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <div class="modal-titles">
+                        <h5 class="modal-title">приветствуем вас</h5>
+                        <h5 class="modal-title2">환영합니다</h5>
+                    </div>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Закрыть"></button>
+                </div>
+                <div class="modal-body">
+                    <!-- Сообщения об ошибках для модалки входа -->
+                    {% for message in messages %}
+                        {% if 'login' in message.tags or 'logout' in message.tags or 'email_verified' in message.tags %}
+                        <div class="alert alert-{{ message.tags }} custom-alert" role="alert">
+                            {{ message }}
+                        </div>
+                        {% endif %}
+                    {% endfor %}
+
+                    <form method="post" action="{% url 'login_user' %}">
+                        {% csrf_token %}
+                        <input type="hidden" name="modal_id" value="loginModal">
+                        <div class="mb-3">
+                            <input type="email" class="form-control" id="email" name="email" placeholder="Email" required value="{{ request.POST.email }}">
+                        </div>
+                        <div class="mb-3">
+                            <input type="password" class="form-control" id="password" name="password" placeholder="Пароль" required>
+                        </div>
+                        <button type="submit" class="btn btn-dark w-100 mb-2">Продолжить</button>
+
+
+                        <!-- Кнопка регистрации -->
+                        <button type="button" class="btn btn-dark2 w-100" data-bs-toggle="modal" data-bs-target="#registerModal" data-bs-dismiss="modal">
+                            Регистрация
+                        </button>
+
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Модалка регистрации -->
+    <div class="modal fade" id="registerModal" tabindex="-1" aria-labelledby="registerModalLabel" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <div class="modal-titles">
+                        <h5 class="modal-title">Создать аккаунт</h5>
+                        <h5 class="modal-title2">계정 만들기</h5>
+                    </div>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body">
+                    <!-- Сообщения для модалки регистрации -->
+                    {% for message in messages %}
+                        {% if 'register' in message.tags or 'register_success' in message.tags %}
+                        <div class="alert alert-{{ message.tags }} custom-alert" role="alert">
+                            {{ message }}
+                        </div>
+                        {% endif %}
+                    {% endfor %}
+
+                    <form method="post" action="{% url 'register_user' %}">
+                        {% csrf_token %}
+                        <input type="hidden" name="modal_id" value="registerModal">
+                        <div class="mb-3">
+                            <input type="email" name="email" class="form-control" placeholder="Email" required value="{{ request.POST.email }}">
+                        </div>
+                        <div class="mb-3">
+                            <input type="password" name="password" class="form-control" placeholder="Пароль" required>
+                        </div>
+                        <div class="mb-3">
+                            <input type="password" name="confirm_password" class="form-control" placeholder="Повторите пароль" required>
+                        </div>
+
+                        <button type="submit" class="btn btn-dark w-100">Продолжить</button>
+                            <a href="#" class="btn btn-dark2 w-100" data-bs-toggle="modal" data-bs-target="#loginModal">Войти</a>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+
+<!-- Модалка бронирования -->
+<div class="modal fade" id="bookingModal" tabindex="-1" aria-labelledby="bookingModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content">
+            <div class="modal-header">
+                <div class="modal-titles">
+                    <h5 class="modal-title">Забронировать стол</h5>
+                    <h5 class="modal-title2">테이블 예약</h5>
+                </div>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Закрыть"></button>
+            </div>
+            <div class="modal-body">
+                <form method="post" action="{% url 'booking_page' %}">
+                    {% csrf_token %}
+                    <div class="mb-3">
+                        <label class="form-label">Дата</label>
+                        <input type="date" name="date" class="form-control" required>
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label">Время</label>
+                        <select name="time" class="form-control" required>
+                            <option value="">Выберите время</option>
+                            <option value="10:00">10:00</option>
+                            <option value="12:00">12:00</option>
+                            <option value="14:00">14:00</option>
+                            <option value="16:00">16:00</option>
+                            <option value="18:00">18:00</option>
+                            <option value="20:00">20:00</option>
+                            <option value="22:00">22:00</option>
+                        </select>
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label">Количество гостей</label>
+                        <input type="number" name="guests" class="form-control" min="1" max="20" required>
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label">Телефон</label>
+                        <input type="tel" name="phone" class="form-control" placeholder="+7 (XXX) XXX-XX-XX">
+                    </div>
+                    <button type="submit" class="btn btn-dark w-100">Забронировать</button>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+    <!-- Основные сообщения (не в модалках) -->
+    {% for message in messages %}
+        {% if 'email_verified_error' in message.tags %}
+            <div class="container mt-3">
+                <div class="alert alert-{{ message.tags }} custom-alert" role="alert">
+                    {{ message }}
+                </div>
+            </div>
+        {% endif %}
+    {% endfor %}
+
+    <!-- Общие сообщения -->
+    {% if messages %}
+    <div class="container mt-3">
+        {% for message in messages %}
+        <div class="alert alert-{{ message.tags }} custom-alert" role="alert">
+            {{ message }}
+        </div>
+        {% endfor %}
+    </div>
+    {% endif %}
+
+    <!-- Кнопка "Наверх" -->
+    <button id="scrollToTop" class="scroll-to-top" title="Наверх">
+        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="3">
+            <path d="M18 15l-6-6-6 6"/>
+        </svg>
+    </button>
+
+    <script>
+    // Кнопка "Наверх"
+    document.addEventListener('DOMContentLoaded', function() {
+        const scrollButton = document.getElementById('scrollToTop');
+
+        // Показываем/скрываем кнопку при прокрутке
+        window.addEventListener('scroll', function() {
+            if (window.pageYOffset > 300) {
+                scrollButton.classList.add('show');
+            } else {
+                scrollButton.classList.remove('show');
+            }
+        });
+
+        // Плавная прокрутка вверх при клике
+        scrollButton.addEventListener('click', function() {
+            window.scrollTo({
+                top: 0,
+                behavior: 'smooth'
+            });
+        });
+    });
+
+console.log('Django templates loaded');
+{% if messages %}
+console.log('Messages:', [
+    {% for message in messages %}
+    '{{ message }}',
+    {% endfor %}
+]);
+{% endif %}
+</script>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+
+    {% block scripts %}
+    {% endblock %}
+</body>
+</html>

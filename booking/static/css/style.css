@@ -1,0 +1,799 @@
+<style>
+
+
+@font-face {
+    font-family: 'LTSuperior';
+    src: url('/static/fonts/LTSuperior.otf') format('opentype');
+    font-weight: normal;
+    font-style: normal;
+}
+@font-face {
+    font-family: 'gingsul';
+    src: url('/static/fonts/gingsul-demo.regular.ttf') format('opentype');
+    font-weight: normal;
+    font-style: normal;
+}
+@font-face {
+    font-family: 'aoudax';
+    src: url('/static/fonts/aoudax-cyrillic.otf') format('opentype');
+    font-weight: normal;
+    font-style: normal;
+}
+
+@font-face {
+    font-family: 'Stengazeta';
+    src: url('/static/fonts/Stengazeta-Regular_5.ttf') format('opentype');
+    font-weight: normal;
+    font-style: normal;
+}
+
+@font-face {
+    font-family: 'pobeda';
+    src: url('/static/fonts/pobeda-regular.ttf') format('opentype');
+    font-weight: normal;
+    font-style: normal;
+}
+
+@font-face {
+    font-family: 'Klukva';
+    src: url('/static/fonts/Klukva_version_01.otf') format('opentype');
+    font-weight: normal;
+    font-style: normal;
+}
+/* Сброс стандартных отступов и полей */
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+/* Единый подход к расчету размеров */
+html {
+    font-size: 16px; /* Фиксированный базовый размер */
+    -webkit-text-size-adjust: 100%; /* Предотвращает изменение размера текста на iOS */
+}
+/* --------------------------- */
+/* Глобальные стили для страницы */
+/* --------------------------- */
+body, html {
+    margin: 0; /* убираем стандартные внешние отступы браузера */
+    padding: 0; /* убираем стандартные внутренние отступы */
+    height: 100%; /* чтобы блоки на всю высоту экрана могли занимать 100vh */
+    scroll-behavior: smooth; /* плавная прокрутка при переходе по якорям */
+    font-family: 'aoudax';
+    background-color: #fafafa; /* светлый фон для всей страницы */
+}
+
+.scroll-to-top {
+    position: fixed;
+    bottom: 30px;
+    right: 30px;
+    width: 50px;
+    height: 50px;
+    border-radius: 15%;
+    background-color: #a83250;
+    border: none;
+    cursor: pointer;
+    opacity: 0;
+    visibility: hidden;
+    transition: all 0.3s ease;
+    z-index: 1000;
+    box-shadow: 0 2px 10px rgba(0,0,0,0.2);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.scroll-to-top.show {
+    opacity: 1;
+    visibility: visible;
+}
+
+.scroll-to-top:hover {
+    background-color: #a83250;
+    transform: translateY(-2px);
+    box-shadow: 0 4px 15px rgba(168, 50, 80, 0.4);
+}
+
+/* Стили для сообщений без крестика */
+.custom-alert {
+    border: none;
+    margin-bottom: 10px;
+    font-family: 'Klukva';
+    background: none !important;
+    padding: 1px 0;
+    text-align: center;
+    font-weight: normal;
+    box-shadow: none !important;
+    border-radius: 0 !important;
+    color: #a83250 !important; /* твой фирменный красный */
+        font-size: 1.3rem; /* размер шрифта заголовка */
+}
+
+.alert-success.custom-alert,
+.alert-error.custom-alert,
+.alert-danger.custom-alert,
+.alert-warning.custom-alert,
+.alert-info.custom-alert {
+    background: none !important;
+    border: none !important;
+    border-left: none !important;
+    color: #dc3545 !important; /* красный цвет для всех типов */
+}
+
+/* --------------------------- */
+/* Контейнер с горизонтальными отступами */
+/* --------------------------- */
+/* Основной контейнер */
+.container {
+    font-family: 'pobeda';
+    padding-left: 20px;
+    padding-right: 20px;
+    max-width: 1600px;
+    margin: 0 auto;
+    width: 100%;
+}
+
+/* Специфичные стили для секций */
+.section {
+    height: 80vh;
+    display: flex;
+    flex-direction: column;
+    position: relative;
+    overflow: hidden;
+}
+
+/* Для обычных секций (не на весь экран) */
+.section-normal {
+    padding: 45px 0; /* добавляем вертикальные отступы */
+    min-height: auto; /* убираем фиксированную высоту */
+    height: auto;
+}
+
+/* --------------------------- */
+/* Верхняя навигация (header) */
+/* --------------------------- */
+.navbar-custom {
+    display: flex; /* горизонтальное расположение элементов */
+    justify-content: space-between; /* заголовок слева, надписи справа */
+    align-items: center; /* выравнивание по вертикали */
+    padding: 10px 0; /* отступ сверху и снизу */
+    border-bottom: 1px solid rgba(0, 0, 0, 0.1); /* тонкая полупрозрачная линия */
+    text-decoration: none;    /* убираем подчеркивание */
+    color: #222;             /* черный цвет текста */
+}
+.navbar-custom a {
+    color: #222 !important;
+    text-decoration: none !important;
+}
+
+
+.navbar-title {
+
+    font-family: 'gingsul';
+    font-size: 4rem; /* размер шрифта заголовка */
+    font-weight: 500; /* жирный шрифт */
+    letter-spacing: 1px; /* расстояние между буквами */
+
+}
+a {
+    color: rgba(var(--bs-link-color-rgb), var(--bs-link-opacity, 1));
+    text-decoration: underline;
+}
+
+
+.navbar-subtitle {
+    font-family: 'Pobeda';
+    font-size: 1rem;
+    color: #a83250;
+    font-weight: 400;
+    letter-spacing: 0.5px;
+    position: relative;
+    top: -5px; /* поднимаем вверх примерно на 5px */
+        margin-left: 30px; /* расстояние между ссылками */
+}
+
+
+.navbar-links a {
+    font-size: 1.5rem; /* размер шрифта заголовка */
+    margin-left: 50px; /* расстояние между ссылками */
+    text-decoration: none; /* убираем подчеркивание ссылок */
+    color: #333; /* цвет текста ссылок */
+    font-weight: 600; /* средняя жирность текста */
+    transition: color 0.3s ease; /* плавное изменение цвета при наведении */
+}
+
+.navbar-links a:hover {
+    color: #a83250; /* винный оттенок при наведении */
+}
+
+/* --------------------------- */
+/* Нижняя часть секции (контент и изображение) */
+/* --------------------------- */
+.title2 {
+    font-size: 2.5rem; /* размер шрифта заголовка */
+    font-weight: 600; /* жирный шрифт */
+    letter-spacing: 3px; /* расстояние между буквами */
+}
+.title2-1 {
+    font-size: 1.6rem; /* размер шрифта заголовка */
+    font-weight: 400; /* жирный шрифт */
+    letter-spacing: 3px; /* расстояние между буквами */
+    color: #a83250; /* цвет текста ссылок */
+}
+
+.bottom-content {
+    display: flex; /* располагаем элементы (изображение и текст) в одну линию */
+    align-items: center; /* выравниваем их по вертикали по центру */
+    justify-content: center; /* центрируем весь блок по горизонтали */
+    padding: 110px 0; /* вертикальные отступы сверху и снизу */
+    gap: 120px; /* расстояние между изображением и текстом */
+
+}
+
+.bottom-image {
+    order: 1; /* изображение слева */
+}
+
+.bottom-text {
+    order: 2; /* текст справа */
+    display: flex;
+    flex-direction: column;
+    gap: 50px; /* расстояние между ссылками */
+
+    justify-content: center; /* центрируем текст по вертикали внутри блока */
+}
+.bottom-text-1 {
+    order: 2; /* текст справа */
+    display: flex;
+    flex-direction: column;
+    gap: 50px; /* расстояние между ссылками */
+    justify-content: center; /* центрируем текст по вертикали внутри блока */
+    color: #a83250; /* цвет текста ссылок */
+}
+
+    .bottom-image img {
+    width: 900px;      /* фиксированная ширина */
+    height: 600px;     /* фиксированная высота */
+    object-fit: cover; /* сохраняем пропорции и обрезаем лишнее */
+    border-radius: 5px;
+    box-shadow: 0 4px 15px rgba(0,0,0,0.2);
+}
+
+
+/* --- Корейское и русское слово в одной строке --- */
+.bottom-text a {
+    display: flex; /* размещаем корейское и русское слово в строку */
+    align-items: center; /* выравнивание по вертикали */
+    gap: 14px; /* расстояние между ними */
+    text-decoration: none; /* убираем подчеркивание */
+    color: #222; /* основной цвет */
+    font-size: 1.9rem; /* общий размер */
+    font-weight: 200;
+    transition: color 0.3s ease;
+}
+
+/* При наведении — общий цвет */
+.bottom-text a:hover {
+    color: #a83250;
+}
+
+/* --- Корейская часть --- */
+.label-ko {
+    color: #a83250; /* выделяем корейский текст */
+    font-size: 1.4rem; /* размер шрифта заголовка */
+    font-weight: 400; /* жирный шрифт */
+    letter-spacing: 2px; /* расстояние между буквами */
+}
+
+/* --- Русская часть --- */
+.label-ru {
+    font-family: 'pobeda', sans-serif;
+    letter-spacing: 1.2px; /* расстояние между буквами */
+    font-size: 1.5rem;
+    color: #222;
+    font-weight: 600; /* жирный шрифт */
+    transition: color 0.3s ease;
+}
+
+/* Чтобы русский текст тоже плавно менял цвет при наведении */
+.bottom-text a:hover .label-ru {
+    color: #a83250;
+}
+
+
+.label-ko-2 {
+    color: #a83250; /* выделяем корейский текст */
+    font-size: 1.7rem; /* размер шрифта заголовка */
+    font-weight: 400; /* жирный шрифт */
+    letter-spacing: 2px; /* расстояние между буквами */
+}
+.history {
+    display: flex;
+    flex-direction: column;
+    gap: 40px; /* расстояние между годами */
+    margin-top: 30px;
+    margin-bottom: 10px; /* отступ снизу до следующего блока */
+
+}
+
+
+.history-item {
+    display: flex;
+    align-items: flex-start;
+    gap: 20px; /* расстояние между годом и текстом */
+
+}
+
+.history-year {
+    font-family: 'Pobeda', sans-serif;
+    font-size: 3rem;
+    font-weight: 600;
+    color: #a83250; /* винный оттенок для года */
+    min-width: 100px; /* чтобы все года были на одной линии */
+}
+
+.history-text {
+    font-family: 'Klukva', sans-serif;
+    font-size: 1.5rem;
+    font-weight: 100;
+    color: #222;
+    line-height: 2;
+}
+
+/* Контейнер контактов */
+#cont .contacts {
+    width: 100%;       /* растягиваем на всю ширину */
+
+}
+
+#cont .contact-item {
+    width: 100%;       /* элементы тоже растягиваем */
+}
+
+.contacts {
+    display: flex;
+    flex-direction: column;
+    gap: 70px; /* расстояние между отдельными контактными блоками */
+    margin-top: 100px;
+
+
+
+}
+
+/* Отдельный контакт */
+.contact-item {
+    display: flex;
+    align-items: flex-start;
+    gap: 50px; /* расстояние между меткой (например, "Телефон") и текстом */
+
+}
+
+/* Метка контакта (например, "Телефон", "Email") */
+.contact-label {
+    font-family: 'Pobeda', sans-serif;
+    font-size: 1.7rem;
+    font-weight: 600;
+    color: #a83250; /* акцентный винный оттенок */
+    min-width: 120px; /* чтобы метки выстраивались в одну колонку */
+        text-align: center;          /* выравнивание по центру */
+}
+
+/* Текст контакта (например, номер телефона, адрес) */
+.contact-text {
+    font-family: 'Klukva', sans-serif;
+
+    font-size: 1.7rem;
+    font-weight: 100;
+    color: #222;
+    line-height: 2;
+        text-align: center;          /* выравнивание по центру */
+}
+.contacts-footer {
+    margin-top: 100px;          /* расстояние от контактов */
+    margin-bottom: 10px;       /* отступ снизу */
+    font-family: 'Klukva', sans-serif; /* тот же шрифт, что у текста контактов */
+    font-size: 1.8rem;          /* чуть крупнее обычного текста */
+    font-weight: 500;            /* лёгкая жирность */
+    color: #222;                 /* цвет текста */
+    line-height: 1;              /* межстрочный интервал */
+    text-align: center;          /* выравнивание по центру */
+}
+
+
+
+
+/* --------------------------- */
+/* Адаптивность для мобильных устройств */
+/* --------------------------- */
+@media (max-width: 768px) {
+    .container {
+        padding: 0 20px; /* уменьшаем горизонтальные отступы на маленьких экранах */
+    }
+
+    .bottom-content {
+        flex-direction: column; /* текст и изображение становятся вертикально */
+        align-items: center; /* центрируем по горизонтали */
+        gap: 40px; /* уменьшаем расстояние между элементами */
+    }
+
+    .navbar-links a {
+        margin-left: 20px; /* уменьшаем отступ между ссылками */
+    }
+}
+/* ----- НАСТРОЙКА: bottom-content с изображением справа ----- */
+.right-layout {
+    display: flex; /* располагаем элементы (изображение и текст) в одну линию */
+    align-items: center; /* выравниваем их по вертикали по центру */
+    justify-content: center; /* центрируем весь блок по горизонтали */
+  padding: 110px 0 10px 0; /* верх 110px, справа 0, низ 50px, слева 0 */
+    gap: 120px; /* расстояние между изображением и текстом */
+
+}
+
+.right-layout .right-text {
+    order: 1;
+    gap: 60px;
+    padding: 0 10px; /* отступ слева и справа */
+}
+
+.title2 .label-ru {
+    margin-top: 20px; /* расстояние между заголовком и текстом */
+    font-size: 1.7rem; /* при необходимости, размер шрифта */
+    line-height: 1.8;  /* межстрочный интервал для удобного чтения */
+    color: #222;       /* цвет текста */
+}
+
+.right-layout .right-image {
+    order: 2; /* изображение справа */
+}
+
+.right-layout .right-image img {
+    width: 900px;      /* фиксированная ширина */
+    height: 600px;     /* фиксированная высота */
+    object-fit: cover; /* сохраняем пропорции и обрезаем лишнее */
+    border-radius: 5px;
+    box-shadow: 0 4px 15px rgba(0,0,0,0.2);
+
+
+}
+
+.section2 {
+    height: 60vh; /* секция занимает весь экран по высоте */
+    display: flex; /* используем flexbox для выравнивания контента */
+    flex-direction: column; /* располагаем элементы вертикально */
+
+    position: relative; /* для возможного абсолютного позиционирования внутри */
+    overflow: hidden; /* скрываем элементы, выходящие за пределы блока */
+}
+.footer2 {
+    margin-top: 1px;
+    margin-bottom: 20px;       /* отступ снизу */
+    font-family: 'Klukva', sans-serif; /* тот же шрифт, что у текста контактов */
+    font-size: 1.6rem;          /* чуть крупнее обычного текста */
+    font-weight: 500;            /* лёгкая жирность */
+    color: #222;                 /* цвет текста */
+    line-height: 1.5;              /* межстрочный интервал */
+    text-align: center;          /* выравнивание по центру */
+}
+
+/* Модалка вход */
+#loginModal .modal-dialog {
+    max-width: 500px; /* ширина модалки */
+    margin: 12rem auto;
+}
+
+#loginModal .modal-content {
+    border-radius: 4px !important;
+    padding: 20px !important;
+    background-color: #fff !important;
+    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.2) !important;
+}
+
+
+#loginModal .modal-header {
+    font-family: 'pobeda', sans-serif;
+    border-bottom: none; /* убрать линию */
+    justify-content: center; /* центр заголовка */
+}
+
+#loginModal .modal-title {
+    font-family: 'pobeda', sans-serif;
+    text-align: center; /* центрируем заголовки */
+    font-size: 4rem;
+    font-weight: 200;
+    color: #222;
+}
+#loginModal .modal-title2 {
+    font-family: 'pobeda', sans-serif;
+    color: #a83250;
+    font-size: 1.2rem;
+    font-weight: 500;
+    text-align: center; /* центрируем заголовки */
+
+}
+#loginModal .btn-close {
+    position: absolute;
+    right: 20px;
+    top: 20px;
+}
+
+#loginModal .modal-body {
+    font-family: 'Klukva', sans-serif;
+
+        font-weight: 200;
+        font-size: 2rem;
+    padding-top: 20px;
+}
+
+#loginModal .form-label {
+    font-weight: 500;
+    color: #333;
+}
+
+#loginModal .form-control {
+    background-color: #f0f0f0; /* светло-серый фон */
+    border: none;              /* убираем рамку */
+    border-radius: 3px;        /* скругление углов */
+    padding: 10px;
+    margin-bottom: 15px;
+    font-size: 1.3rem;
+    box-shadow: none;          /* убираем тень, если есть */
+}
+
+
+#loginModal .btn-dark {
+    border-radius: 3px;        /* скругление углов */
+    font-size: 2rem;
+    background-color: #a83250;
+    border: none;
+    font-weight: 500;
+    transition: background 0.3s ease;
+        font-family: 'pobeda', sans-serif;
+    margin-top: 20px;          /* добавляем отступ сверху */
+}
+#loginModal .btn-dark2 {
+    border-radius: 3px;        /* скругление углов */
+    font-size: 2rem;
+    background-color: #f1f0f0;
+        font-family: 'pobeda', sans-serif;
+    border: none;
+    font-weight: 400;
+    transition: background 0.3s ease;
+    margin-top: 20px;          /* добавляем отступ сверху */
+}
+#loginModal .btn-dark:hover {
+    background-color: #8a2942;
+}
+
+
+/* Модалка реги */
+
+#registerModal .modal-dialog {
+    max-width: 500px;
+    margin: 0.2rem auto;
+}
+
+#registerModal .modal-content {
+    border-radius: 4px !important;
+    padding: 20px !important;
+    background-color: #fff !important;
+    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.2) !important;
+}
+
+
+#registerModal .modal-header {
+    font-family: 'pobeda', sans-serif;
+    border-bottom: none; /* убрать линию */
+    justify-content: center; /* центр заголовка */
+}
+
+#registerModal .modal-title {
+    font-family: 'pobeda', sans-serif;
+    text-align: center; /* центрируем заголовки */
+    font-size: 4rem;
+    font-weight: 200;
+    color: #222;
+}
+#registerModal .modal-title2 {
+    font-family: 'pobeda', sans-serif;
+    color: #a83250;
+    font-size: 1.2rem;
+    font-weight: 500;
+    text-align: center; /* центрируем заголовки */
+
+}
+#registerModal .btn-close {
+    position: absolute;
+    right: 20px;
+    top: 20px;
+}
+
+#registerModal .modal-body {
+    font-family: 'Klukva', sans-serif;
+
+        font-weight: 200;
+        font-size: 2rem;
+    padding-top: 20px;
+}
+
+#registerModal .form-label {
+    font-weight: 500;
+    color: #333;
+}
+
+#registerModal .form-control {
+    background-color: #f0f0f0; /* светло-серый фон */
+    border: none;              /* убираем рамку */
+    border-radius: 3px;        /* скругление углов */
+    padding: 10px;
+    margin-bottom: 15px;
+    font-size: 1.3rem;
+    box-shadow: none;          /* убираем тень, если есть */
+}
+
+
+#registerModal .btn-dark {
+    border-radius: 3px;        /* скругление углов */
+    font-size: 2rem;
+    background-color: #a83250;
+    border: none;
+    font-weight: 500;
+    transition: background 0.3s ease;
+        font-family: 'pobeda', sans-serif;
+    margin-top: 20px;          /* добавляем отступ сверху */
+}
+#registerModal .btn-dark2 {
+    border-radius: 3px;        /* скругление углов */
+    font-size: 2rem;
+    background-color: #f1f0f0;
+    font-family: 'pobeda', sans-serif;
+    border: none;
+    font-weight: 400;
+    transition: background 0.3s ease;
+    margin-top: 20px;          /* добавляем отступ сверху */
+}
+#registerModal .btn-dark:hover {
+    background-color: #8a2942;
+}
+/* Модалка брони */
+#bookingModal .modal-dialog {
+    max-width: 500px; /* ширина модалки */
+    margin: 1rem auto;
+}
+
+#bookingModal .modal-content {
+    border-radius: 4px !important;
+    padding: 20px !important;
+    background-color: #fff !important;
+    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.2) !important;
+}
+
+
+#bookingModal .modal-header {
+    font-family: 'pobeda', sans-serif;
+    border-bottom: none; /* убрать линию */
+    justify-content: center; /* центр заголовка */
+}
+
+#bookingModal .modal-title {
+    font-family: 'pobeda', sans-serif;
+    text-align: center; /* центрируем заголовки */
+    font-size: 4rem;
+    font-weight: 200;
+    color: #222;
+}
+#bookingModal .modal-title2 {
+    font-family: 'pobeda', sans-serif;
+    color: #a83250;
+    font-size: 1.2rem;
+    font-weight: 500;
+    text-align: center; /* центрируем заголовки */
+
+}
+#bookingModal .btn-close {
+    position: absolute;
+    right: 20px;
+    top: 20px;
+}
+
+#bookingModal .modal-body {
+    font-family: 'Klukva', sans-serif;
+
+        font-weight: 200;
+        font-size: 2rem;
+    padding-top: 20px;
+}
+
+#bookingModal .form-label {
+    font-weight: 500;
+    color: #333;
+}
+
+#bookingModal .form-control {
+    background-color: #f0f0f0; /* светло-серый фон */
+    border: none;              /* убираем рамку */
+    border-radius: 3px;        /* скругление углов */
+    padding: 10px;
+    margin-bottom: 15px;
+    font-size: 1.3rem;
+    box-shadow: none;          /* убираем тень, если есть */
+}
+
+
+#bookingModal .btn-dark {
+    border-radius: 3px;        /* скругление углов */
+    font-size: 2rem;
+    background-color: #a83250;
+    border: none;
+    font-weight: 500;
+    transition: background 0.3s ease;
+        font-family: 'pobeda', sans-serif;
+    margin-top: 20px;          /* добавляем отступ сверху */
+}
+#bookingModal .btn-dark2 {
+    border-radius: 3px;        /* скругление углов */
+    font-size: 2rem;
+    background-color: #f1f0f0;
+        font-family: 'pobeda', sans-serif;
+    border: none;
+    font-weight: 400;
+    transition: background 0.3s ease;
+    margin-top: 20px;          /* добавляем отступ сверху */
+}
+#bookingModal .btn-dark:hover {
+    background-color: #8a2942;
+}
+
+/* Страница бронирования */
+
+.booking-text {
+    font-family: 'Klukva', sans-serif;
+    margin-top: 80px;
+    font-size: 1.8rem;
+    font-weight: 300;
+    color: #222;
+    line-height: 2.3;
+    text-align: center;
+    max-width: 700px; /* ограничение по ширине */
+    margin-left: auto; /* центрирование */
+    margin-right: auto; /* центрирование */
+    padding: 0 20px; /* отступы по бокам на мобильных */
+}
+
+.btn-booking {
+    display: inline-block;
+    border-radius: 3px;
+    font-size: 2rem;
+    background-color: #a83250 !important;
+    border: none !important;
+    font-weight: 500;
+    transition: background 0.3s ease;
+    font-family: 'pobeda', sans-serif;
+    margin-top: 70px;
+    text-align: center;
+    color: white !important; /* важно для hover */
+    padding: 10px 20px;
+    text-decoration: none !important;
+    width: 300px;
+}
+
+.btn-booking:hover {
+    background-color: #8c2a43 !important; /* темнее при наведении */
+    color: white !important; /* белый текст при наведении */
+    transform: translateY(-2px); /* легкий подъем */
+    box-shadow: 0 4px 12px rgba(168, 50, 80, 0.4);
+}
+
+.booking-btn-container {
+    text-align: center; /* центрирует кнопку */
+}
+.title-booking {
+    font-size: 1.9rem;
+    font-size: 1.5rem; /* размер шрифта заголовка */
+    font-weight: 300; /* жирный шрифт */
+    letter-spacing: 3px; /* расстояние между буквами */
+    color: #a83250; /* цвет текста ссылок */
+        text-align: center;        /* выравнивание текста по центру */
+}
+</style>

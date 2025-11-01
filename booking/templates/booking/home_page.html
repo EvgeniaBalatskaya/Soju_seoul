@@ -1,0 +1,272 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block content %}
+<section class="container section">
+    <div class="bottom-content">
+        <div class="bottom-text">
+            <div class="title2">
+                <h3 class="title2-1">
+                    한국 문화 레스토랑
+                </h3>
+                Настоящая корейская кухня
+            </div>
+            <a href="#">
+                <span class="label-ko">식당</span>
+                <span class="label-ru">Наши рестораны</span>
+            </a>
+            <a href="{% url 'menu_page' %}">
+                <span class="label-ko">메뉴</span>
+                <span class="label-ru">Меню ресторана</span>
+            </a>
+
+            <!-- Исправленная ссылка бронирования -->
+            {% if user.is_authenticated %}
+                <a href="#" data-bs-toggle="modal" data-bs-target="#bookingModal">
+                    <span class="label-ko">예약</span>
+                    <span class="label-ru">Забронировать столик</span>
+                </a>
+            {% else %}
+                <a href="{% url 'booking_page' %}">
+                    <span class="label-ko">예약</span>
+                    <span class="label-ru">Забронировать столик</span>
+                </a>
+            {% endif %}
+        </div>
+        <div class="bottom-image">
+            <img id="restaurant-img" src="{% static 'images/1.jpg' %}" alt="Ресторан">
+        </div>
+    </div>
+</section>
+
+<!-- О нас -->
+<section class="container section-normal" id="about">
+    <nav class="navbar-custom">
+        <div class="title2">
+            НАША ИСТОРИЯ
+            <span class="label-ko-2">우리의 역사</span>
+        </div>
+    </nav>
+    <div class="history">
+        <div class="history-item">
+            <span class="history-year">2021</span>
+            <p class="history-text">Идея создать уголок настоящей корейской кухни в сердце города возникла у основателей после нескольких путешествий по Сеулу. Они мечтали привезти атмосферу корейских улиц, вкусы традиционных блюд и радушие местных жителей в одно место</p>
+        </div>
+        <div class="history-item">
+            <span class="history-year">2022</span>
+            <p class="history-text">В середине года было выбрано идеальное место для ресторана: уютный уголок с большим светлым залом и видом на оживленную улицу. Началась работа над интерьером, который сочетает современный стиль и традиционные корейские мотивы</p>
+        </div>
+        <div class="history-item">
+            <span class="history-year">2023</span>
+            <p class="history-text">В начале весны состоялось официальное открытие. В меню вошли тщательно подобранные блюда: от классического кимчи и барбекю до авторских интерпретаций корейских десертов. Главным акцентом стало фирменное Soju & Seoul, уникальное сочетание традиций и современных вкусов</p>
+        </div>
+        <div class="history-item">
+            <span class="history-year">2024</span>
+            <p class="history-text">Ресторан стал популярным местом встреч для любителей корейской кухни. Были добавлены новые тематические вечера, мастер-классы по приготовлению блюд и дегустации соусов и напитков. Soju & Seoul превратился в место, где каждый гость может почувствовать настоящую атмосферу Сеула</p>
+        </div>
+        <div class="history-item">
+            <span class="history-year">2025</span>
+            <p class="history-text"> Soju & Seoul — это больше, чем ресторан. Это встреча культур, праздник вкуса и теплое место для общения. Мы гордимся тем, что можем дарить гостям частичку Кореи прямо здесь, в нашем городе.</p>
+        </div>
+    </div>
+</section>
+
+<!-- Контакты -->
+<section class="container section-normal" id="cont">
+    <nav class="navbar-custom">
+        <div class="title2">
+            НАШИ КОНТАКТЫ
+            <span class="label-ko-2">우리의 연락처</span>
+        </div>
+    </nav>
+
+    <div class="row">
+        <!-- Левая колонка - Контакты -->
+        <div class="col-md-6">
+            <div class="contacts">
+                <div class="contact-item">
+                    <div class="contact-label">Адрес:</div>
+                    <div class="contact-text">ул. Корейская, 15, Город, Страна</div>
+                </div>
+                <div class="contact-item">
+                    <div class="contact-label">Телефон:</div>
+                    <div class="contact-text">+7 (123) 456-78-90</div>
+                </div>
+                <div class="contact-item">
+                    <div class="contact-label">Email:</div>
+                    <div class="contact-text">info@soju-seoul.ru</div>
+                </div>
+                <div class="contact-item">
+                    <div class="contact-label">Часы работы:</div>
+                    <div class="contact-text">Пн–Вс: 12:00 – 23:00</div>
+                </div>
+                <div class="contacts-footer">
+                    <p>Ждём вас в ресторане Soju & Seoul! Приходите попробовать вкус настоящей Кореи и насладиться атмосферой Сеула прямо в нашем городе</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- Правая колонка - Форма обратной связи -->
+        <div class="col-md-6">
+            <div class="feedback-form">
+                <h4 class="form-title">Обратная связь</h4>
+                <p class="form-subtitle">Есть вопросы или предложения? Напишите нам!</p>
+
+                <form id="feedbackForm">
+                    <div class="mb-3">
+                        <label class="title3">Ваше имя</label>
+                        <input type="text" name="name" class="form-control" required>
+                    </div>
+                    <div class="mb-3">
+                        <label class="title3">Email</label>
+                        <input type="email" name="email" class="form-control" required>
+                    </div>
+
+                    <div class="mb-3">
+                        <label class="title3">Сообщение</label>
+                        <textarea name="message" class="form-control" rows="4" placeholder="Ваш вопрос или предложение..." required></textarea>
+                    </div>
+                    <button type="submit" class="btn btn-feedback">Отправить сообщение</button>
+                </form>
+            </div>
+        </div>
+    </div>
+</section>
+
+<style>
+
+    .title3 {
+    font-size: 1.2rem; /* размер шрифта заголовка */
+    font-weight: 600; /* жирный шрифт */
+    letter-spacing: 3px; /* расстояние между буквами */
+        color: #666;
+}
+.title4{
+    font-size: 1.2rem; /* размер шрифта заголовка */
+    font-weight: 400; /* жирный шрифт */
+        font-family: 'Klukva', sans-serif;
+    letter-spacing: 3px; /* расстояние между буквами */
+    color: #a83250; /* цвет текста ссылок */
+}
+
+.feedback-form {
+    background: white;
+    padding: 70px;
+    border-radius: 3px;
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+    margin-left: 20px;
+    margin-top: 60px;
+}
+
+.form-title {
+    font-family: 'pobeda', sans-serif;
+    font-size: 2.5rem;
+        font-weight: 600;
+    color: #222;
+    text-align: center;
+    margin-bottom: 10px;
+}
+
+.form-subtitle {
+    font-family: 'Klukva', sans-serif;
+    font-size: 1.1rem;
+    color: #666;
+    text-align: center;
+    margin-bottom: 25px;
+}
+
+.btn-feedback {
+    display: block;
+    width: 100%;
+    border-radius: 3px;
+    font-size: 1.4rem;
+    background-color: #a83250;
+    border: none;
+    font-weight: 600;
+    transition: background 0.3s ease;
+    font-family: 'pobeda', sans-serif;
+    text-align: center;
+    color: white;
+    padding: 12px;
+                margin-top: 30px;
+    text-decoration: none;
+}
+
+.btn-feedback:hover {
+    background-color: #8c2a43;
+    color: white;
+}
+
+/* Адаптивность */
+@media (max-width: 768px) {
+    .feedback-form {
+        margin-left: 0;
+        margin-top: 30px;
+    }
+
+    .row {
+        flex-direction: column;
+    }
+}
+</style>
+
+<script>
+document.getElementById('feedbackForm').addEventListener('submit', function(e) {
+    e.preventDefault();
+
+    // Здесь можно добавить AJAX отправку формы
+    const formData = new FormData(this);
+
+    // Временное сообщение об успехе
+    alert('Спасибо! Ваше сообщение отправлено. Мы свяжемся с вами в ближайшее время.');
+    this.reset();
+});
+
+
+    // Массив изображений
+    const images = [
+        "{% static 'images/1.jpg' %}",
+        "{% static 'images/2.jpg' %}",
+        "{% static 'images/3.jpg' %}"
+    ];
+
+    let index = 0;
+    const imgElement = document.getElementById('restaurant-img');
+
+    // Смена изображений каждые 10 секунд
+    setInterval(() => {
+        index = (index + 1) % images.length;
+        imgElement.src = images[index];
+    }, 10000);
+
+    // Обработка формы обратной связи
+    document.addEventListener('DOMContentLoaded', function() {
+        const feedbackForm = document.querySelector('form[action="{% url 'send_feedback' %}"]');
+        if (feedbackForm) {
+            feedbackForm.addEventListener('submit', function(e) {
+                // Можно добавить AJAX отправку здесь
+                console.log('Форма обратной связи отправлена');
+            });
+        }
+
+        // Автоматическое открытие модалок при ошибках
+        {% for message in messages %}
+            {% if 'register' in message.tags %}
+                var registerModal = new bootstrap.Modal(document.getElementById('registerModal'));
+                registerModal.show();
+            {% elif 'login' in message.tags %}
+                var loginModal = new bootstrap.Modal(document.getElementById('loginModal'));
+                loginModal.show();
+            {% endif %}
+        {% endfor %}
+
+        // Отладочная информация
+        console.log('Home page loaded');
+        {% if user.is_authenticated %}
+            console.log('User authenticated:', '{{ user.email }}');
+        {% else %}
+            console.log('User not authenticated');
+        {% endif %}
+    });
+</script>
+{% endblock %}
