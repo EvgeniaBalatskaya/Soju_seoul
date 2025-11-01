@@ -14,12 +14,14 @@ from django.template.loader import render_to_string
 from django.contrib.sites.shortcuts import get_current_site
 from django.core.exceptions import ValidationError
 import datetime
-
+from django.http import JsonResponse
 from django.core.mail import send_mail
 from django.conf import settings
 from django.contrib.auth.models import User
 from django.shortcuts import redirect
 from django.contrib import messages
+
+
 # Страницы
 class HomeView(TemplateView):
     template_name = 'booking/home_page.html'
@@ -27,18 +29,6 @@ class HomeView(TemplateView):
 
 def menu_page(request):
     return render(request, 'booking/menu_page.html')
-
-
-def booking_page(request):
-    # Получаем доступные слоты для сегодняшней даты
-    today = datetime.date.today()
-    available_slots = Booking.get_available_slots(today)
-
-    return render(request, 'booking/booking_page.html', {
-        'available_slots': available_slots,
-        'selected_date': today.isoformat()
-    })
-
 
 # Регистрация
 def register_user(request):
@@ -141,26 +131,49 @@ def login_user(request):
             user = form.get_user()
             if user is not None:
                 login(request, user)
-                messages.success(request, f'Добро пожаловать, {user.email}!')
+
                 return redirect('home')
             else:
-                messages.error(request, 'Неверный email или пароль')
+                messages.error(request, 'Неверный email или пароль', extra_tags='login error')
         else:
             for field, errors in form.errors.items():
                 for error in errors:
-                    messages.error(request, f'{error}')
+                    messages.error(request, f'{error}', extra_tags='login error')
     return redirect('home')
+
 
 # Выход
 def logout_user(request):
     logout(request)
-    messages.success(request, 'Вы успешно вышли из системы.')
     return redirect("home")
-
+git add .
+git commit -m "Fix"
+git push -u origin feature/fix
 
 # Бронирование
-@login_required
-def booking_view(request):
+def booking_view(request, booking_id=None):
+    """
+    Универсальный view для бронирования:
+    - Для неавторизованных: информационная страница booking_page.html
+    - Для авторизованных: форма бронирования (через модалку)
+    """
+    # Если пользователь не авторизован - показываем гостевую страницу
+    if not request.user.is_authenticated:
+        return render(request, 'booking/booking_page.html')
+
+    # Дальше код для авторизованных пользователей (обработка формы из модалки)
+    # Если передан booking_id - это редактирование существующего бронирования
+    editing_booking = None
+    if booking_id:
+        try:
+            editing_booking = Booking.objects.get(id=booking_id, user=request.user)
+            if not editing_booking.is_active:
+                messages.error(request, 'Нельзя редактировать отмененное бронирование.')
+                return redirect('personal_account')
+        except Booking.DoesNotExist:
+            messages.error(request, 'Бронирование не найдено.')
+            return redirect('personal_account')
+
     if request.method == 'POST':
         date = request.POST.get('date')
         time = request.POST.get('time')
@@ -168,8 +181,8 @@ def booking_view(request):
         phone = request.POST.get('phone', '')
         comment = request.POST.get('comment', '')
 
-        # Проверяем, что у пользователя нет активного бронирования
-        if request.user.has_active_booking:
+        # При редактировании не проверяем активное бронирование
+        if not booking_id and request.user.has_active_booking:
             messages.error(request, 'У вас уже есть активное бронирование. Отмените его чтобы создать новое.')
             return redirect('personal_account')
 
@@ -177,39 +190,45 @@ def booking_view(request):
             guests = int(guests)
             if guests <= 0 or guests > 20:
                 messages.error(request, 'Количество гостей должно быть от 1 до 20.')
-                return redirect('booking_page')
+                return redirect('home')  # Возвращаем на главную, где есть модалка
 
-            # Создаем бронирование
-            booking = Booking(
-                user=request.user,
-                date=date,
-                time=time,
-                guests=guests,
-                phone=phone,
-                comment=comment
-            )
-            booking.save()
-            messages.success(request, f'Бронирование на {date} в {time} успешно создано!')
+            if booking_id and editing_booking:
+                # Обновляем существующее бронирование
+                editing_booking.date = date
+                editing_booking.time = time
+                editing_booking.guests = guests
+                editing_booking.phone = phone
+                editing_booking.comment = comment
+                editing_booking.save()
+            else:
+                # Создаем новое бронирование
+                booking = Booking(
+                    user=request.user,
+                    date=date,
+                    time=time,
+                    guests=guests,
+                    phone=phone,
+                    comment=comment
+                )
+                booking.save()
+
             return redirect('personal_account')
 
         except ValidationError as e:
             messages.error(request, f'Ошибка при бронировании: {str(e)}')
-            return redirect('booking_page')
+            return redirect('home')  # Возвращаем на главную, где есть модалка
         except Exception as e:
             messages.error(request, f'Ошибка при бронировании: {str(e)}')
-            return redirect('booking_page')
+            return redirect('home')  # Возвращаем на главную, где есть модалка
 
-    # GET запрос
-    today = datetime.date.today()
-    available_slots = Booking.get_available_slots(today)
-    return render(request, 'booking/booking_page.html', {
-        'available_slots': available_slots,
-        'selected_date': today.isoformat()
-    })
+    # GET запрос для авторизованных не должен сюда попадать (они используют модалку)
+    return redirect('home')
 
-# Получение доступных слотов через AJAX
-@login_required
 def get_available_slots(request):
+    """
+    Получение доступных слотов для бронирования.
+    Доступно для всех пользователей (авторизованных и нет)
+    """
     date = request.GET.get('date')
     if date:
         try:
@@ -219,7 +238,6 @@ def get_available_slots(request):
         except ValueError:
             return JsonResponse({'error': 'Неверный формат даты'}, status=400)
     return JsonResponse({'error': 'Дата не указана'}, status=400)
-
 
 # Аккаунт
 @login_required

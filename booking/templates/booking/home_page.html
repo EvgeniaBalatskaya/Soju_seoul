@@ -20,13 +20,14 @@
                 <span class="label-ru">Меню ресторана</span>
             </a>
 
-            <!-- Исправленная ссылка бронирования -->
             {% if user.is_authenticated %}
+                <!-- Авторизованные - модалка -->
                 <a href="#" data-bs-toggle="modal" data-bs-target="#bookingModal">
                     <span class="label-ko">예약</span>
                     <span class="label-ru">Забронировать столик</span>
                 </a>
             {% else %}
+                <!-- Неавторизованные - страница -->
                 <a href="{% url 'booking_page' %}">
                     <span class="label-ko">예약</span>
                     <span class="label-ru">Забронировать столик</span>
@@ -113,16 +114,16 @@
                 <p class="form-subtitle">Есть вопросы или предложения? Напишите нам!</p>
 
                 <form id="feedbackForm">
-                    <div class="mb-3">
+                    <div class="title4 mb-3">
                         <label class="title3">Ваше имя</label>
                         <input type="text" name="name" class="form-control" required>
                     </div>
-                    <div class="mb-3">
+                    <div class="title4 mb-3">
                         <label class="title3">Email</label>
                         <input type="email" name="email" class="form-control" required>
                     </div>
 
-                    <div class="mb-3">
+                    <div class="title4 mb-3 ">
                         <label class="title3">Сообщение</label>
                         <textarea name="message" class="form-control" rows="4" placeholder="Ваш вопрос или предложение..." required></textarea>
                     </div>

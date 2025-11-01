@@ -87,17 +87,25 @@ if DEBUG:
 
 STATIC_ROOT = BASE_DIR / 'staticfiles'
 
-# Локализация / таймзона
+LOGIN_URL = 'login_user'
+LOGIN_REDIRECT_URL = 'home'
+LOGOUT_REDIRECT_URL = 'home'
+
 LANGUAGE_CODE = 'en-us'
 TIME_ZONE = 'Europe/Amsterdam'
 USE_I18N = True
 USE_L10N = True
 USE_TZ = True
 
+AUTHENTICATION_BACKENDS = [
+    'django.contrib.auth.backends.ModelBackend',
+
+]
 AUTH_USER_MODEL = 'booking.CustomUser'
 
 LOGIN_REDIRECT_URL = '/'
 LOGOUT_REDIRECT_URL = '/'
+
 MESSAGE_TAGS = {
     messages.DEBUG: 'secondary',
     messages.INFO: 'info',
