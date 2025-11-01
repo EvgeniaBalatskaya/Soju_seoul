@@ -3,7 +3,7 @@
 {% block content %}
 <section class="container">
     <div class="bottom-content">
-        <div class="bottom-text text-center">
+        <div class="bottom-text-b text-center">
 
 
             <!-- История бронирований -->
@@ -43,45 +43,90 @@
                 <p class="no-history">Вы ещё не делали бронирований</p>
             {% endif %}
 
-            <!-- Кнопка внизу -->
-            <div class="text-center mt-5">
-                {% if active_booking %}
-                    <a href="{% url 'cancel_booking' active_booking.id %}" class="btn btn-cancel"
-                       onclick="return confirm('Вы уверены, что хотите отменить бронирование?')">Отменить бронирование</a>
-                {% else %}
-                    <a href="{% url 'booking_page' %}" class="btn btn-booking">Забронировать стол</a>
-                {% endif %}
-            </div>
+<!-- Кнопка внизу -->
+<div class="text-center mt-5">
+    {% if active_booking %}
+        <div class="d-flex justify-content-center gap-3">
+            <button type="button" class="btn btn-booking"
+                    data-bs-toggle="modal"
+                    data-bs-target="#bookingModal"
+                    data-booking-id="{{ active_booking.id }}"
+                    data-booking-date="{{ active_booking.date|date:'Y-m-d' }}"
+                    data-booking-time="{{ active_booking.time }}"
+                    data-booking-guests="{{ active_booking.guests }}"
+                    data-booking-phone="{{ active_booking.phone|default:'' }}"
+                    data-booking-comment="{{ active_booking.comment|default:'' }}">
+                Изменить бронирование
+            </button>
+            <a href="{% url 'cancel_booking' active_booking.id %}" class="btn btn-booking"
+               onclick="return confirm('Вы уверены, что хотите отменить бронирование?')">
+                Отменить
+            </a>
+        </div>
+    {% else %}
+        <button type="button" class="btn btn-booking" data-bs-toggle="modal" data-bs-target="#bookingModal">
+            Забронировать стол
+        </button>
+    {% endif %}
+</div>
         </div>
     </div>
 </section>
 
 <style>
 /* Стили для таблицы в стиле модалки */
+.bottom-text b {
+
+    align-items: center; /* выравнивание по вертикали */
+    gap: 20px; /* расстояние между ними */
+    text-decoration: none; /* убираем подчеркивание */
+    color: #222; /* основной цвет */
+    font-size: 1.9rem; /* общий размер */
+    font-weight: 400;
+    transition: color 0.3s ease;
+}
 .booking-history {
     max-width: 1000px;
-    margin: 40px auto;
+    margin: 60px auto;
 }
-
+.btn-booking {
+    width: 30%;
+    border-radius: 3px;
+    font-size: 1.4rem;
+    background-color: #a83250;
+    border: none;
+    font-weight: 600;
+    transition: background 0.3s ease;
+    font-family: 'pobeda', sans-serif;
+    text-align: center;
+    color: white;
+    padding: 12px;
+                margin-top: 30px;
+    text-decoration: none;
+}
+.btn-feedback:hover {
+    background-color: #8c2a43;
+    color: white;
+}
 .booking-table {
     width: 100%;
     border-collapse: collapse;
     font-family: 'Klukva', sans-serif;
-    font-size: 1.3rem;
+    font-size: 1.5rem;
     background: #fff;
     border-radius: 4px;
-    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.2);
+
     overflow: hidden;
 }
 
 .booking-table th {
-    background-color: #f8f9fa;
+    background-color: #fff;
     color: #333;
-    padding: 20px 25px;
+    padding: 20px 65px;
     text-align: center;
-    font-weight: 500;
-    font-size: 1.4rem;
-    border-bottom: 2px solid #e0e0e0;
+    font-weight: 600;
+    font-size: 1.5rem;
+    border-bottom: 1px solid #e0e0e0;
     font-family: 'pobeda', sans-serif;
 }
 
@@ -102,8 +147,8 @@
 }
 
 .status-text {
-    font-size: 1.2rem;
-    font-weight: 400;
+    font-size: 1.5rem;
+    font-weight: 600;
     font-family: 'pobeda', sans-serif;
 }
 
@@ -140,4 +185,50 @@
     }
 }
 </style>
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    const bookingModal = document.getElementById('bookingModal');
+
+    // Обработка открытия модалки
+    bookingModal.addEventListener('show.bs.modal', function(event) {
+        const button = event.relatedTarget;
+        console.log('Modal opening, button data:', button.dataset);
+
+        if (button.dataset.bookingId) {
+            // Режим редактирования
+            document.getElementById('bookingModalTitle').textContent = 'Изменить бронирование';
+            document.getElementById('bookingId').value = button.dataset.bookingId;
+            document.getElementById('bookingDate').value = button.dataset.bookingDate;
+            document.getElementById('bookingTime').value = button.dataset.bookingTime;
+            document.getElementById('bookingGuests').value = button.dataset.bookingGuests;
+            document.getElementById('bookingPhone').value = button.dataset.bookingPhone || '';
+            document.getElementById('bookingComment').value = button.dataset.bookingComment || '';
+            document.getElementById('bookingSubmit').textContent = 'Сохранить изменения';
+
+            // Устанавливаем правильный URL для редактирования
+            const editUrl = "{% url 'edit_booking' 0 %}".replace('0', button.dataset.bookingId);
+            document.getElementById('bookingForm').action = editUrl;
+
+            console.log('Edit mode activated for booking:', button.dataset.bookingId);
+        } else {
+            // Режим создания
+            document.getElementById('bookingModalTitle').textContent = 'Забронировать стол';
+            document.getElementById('bookingId').value = '';
+            document.getElementById('bookingSubmit').textContent = 'Забронировать';
+            document.getElementById('bookingForm').action = "{% url 'booking_page' %}";
+            document.getElementById('bookingForm').reset();
+            console.log('Create mode activated');
+        }
+    });
+
+    // Сброс при закрытии модалки
+    bookingModal.addEventListener('hidden.bs.modal', function() {
+        document.getElementById('bookingForm').reset();
+        document.getElementById('bookingId').value = '';
+        document.getElementById('bookingModalTitle').textContent = 'Забронировать стол';
+        document.getElementById('bookingSubmit').textContent = 'Забронировать';
+        document.getElementById('bookingForm').action = "{% url 'booking_page' %}";
+    });
+});
+</script>
 {% endblock %}
