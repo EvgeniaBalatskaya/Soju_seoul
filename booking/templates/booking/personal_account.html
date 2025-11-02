@@ -54,8 +54,7 @@
                     data-booking-date="{{ active_booking.date|date:'Y-m-d' }}"
                     data-booking-time="{{ active_booking.time }}"
                     data-booking-guests="{{ active_booking.guests }}"
-                    data-booking-phone="{{ active_booking.phone|default:'' }}"
-                    data-booking-comment="{{ active_booking.comment|default:'' }}">
+                    data-booking-phone="{{ active_booking.phone|default:'' }}">
                 Изменить бронирование
             </button>
             <a href="{% url 'cancel_booking' active_booking.id %}" class="btn btn-booking"
@@ -231,4 +230,57 @@ document.addEventListener('DOMContentLoaded', function() {
     });
 });
 </script>
+{% block scripts %}
+<script>
+// Обработчик для кнопок редактирования с data-атрибутами
+document.addEventListener('DOMContentLoaded', function() {
+    // Обработчик для кнопки "Изменить бронирование"
+    document.addEventListener('click', function(e) {
+        if (e.target.hasAttribute('data-booking-id')) {
+            const button = e.target;
+            const bookingId = button.getAttribute('data-booking-id');
+            const date = button.getAttribute('data-booking-date');
+            const time = button.getAttribute('data-booking-time');
+            const guests = button.getAttribute('data-booking-guests');
+            const phone = button.getAttribute('data-booking-phone');
+            const comment = button.getAttribute('data-booking-comment');
+
+            console.log('Edit button clicked with data:', {bookingId, date, time, guests, phone, comment});
+
+            // Заполняем модалку данными
+            fillBookingModal(bookingId, date, time, guests, phone, comment);
+        }
+    });
+
+    // Обработчик для кнопки "Забронировать стол" (новое бронирование)
+    document.addEventListener('click', function(e) {
+        if (e.target.hasAttribute('data-bs-target') &&
+            e.target.getAttribute('data-bs-target') === '#bookingModal' &&
+            !e.target.hasAttribute('data-booking-id')) {
+            console.log('New booking button clicked');
+            clearBookingModal();
+        }
+    });
+
+    // Остальная инициализация
+    const dateInput = document.getElementById('bookingDate');
+    const timeInput = document.getElementById('bookingTime');
+
+    const today = new Date().toISOString().split('T')[0];
+    if (dateInput) dateInput.min = today;
+
+    if (dateInput) dateInput.addEventListener('change', updateCapacityInfo);
+    if (timeInput) timeInput.addEventListener('change', updateCapacityInfo);
+
+    const bookingModal = document.getElementById('bookingModal');
+    if (bookingModal) {
+        bookingModal.addEventListener('show.bs.modal', function () {
+            if (!document.getElementById('bookingId').value) {
+                clearBookingModal();
+            }
+        });
+    }
+});
+</script>
+{% endblock %}
 {% endblock %}

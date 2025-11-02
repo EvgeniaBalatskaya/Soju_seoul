@@ -1,15 +1,13 @@
 ﻿from django.views.generic import TemplateView
-from django.contrib.auth import login, logout, authenticate
+from django.contrib.auth import login, logout
 from .forms import UserRegistrationForm, UserLoginForm
 from django.contrib.auth.tokens import default_token_generator
-from django.shortcuts import redirect, get_object_or_404, render
-from django.contrib.auth.views import LoginView
+from django.shortcuts import render
 from django.contrib.auth.decorators import login_required
 from .models import Booking, CustomUser
 from django.utils.http import urlsafe_base64_decode
 from django.utils.http import urlsafe_base64_encode
 from django.utils.encoding import force_bytes
-
 from django.template.loader import render_to_string
 from django.contrib.sites.shortcuts import get_current_site
 from django.core.exceptions import ValidationError
@@ -17,9 +15,9 @@ import datetime
 from django.http import JsonResponse
 from django.core.mail import send_mail
 from django.conf import settings
-from django.contrib.auth.models import User
 from django.shortcuts import redirect
 from django.contrib import messages
+from .models import MenuContent
 
 
 # Страницы
@@ -28,7 +26,26 @@ class HomeView(TemplateView):
 
 
 def menu_page(request):
-    return render(request, 'booking/menu_page.html')
+    # Получаем или создаем контент по умолчанию
+    sections = ['intro', 'kimchi', 'kimbap', 'tteokbokki', 'jjajangmyeon', 'soju', 'footer']
+
+    for section in sections:
+        MenuContent.objects.get_or_create(section=section)
+
+    content_items = MenuContent.objects.all()
+    content_dict = {item.section: item for item in content_items}
+
+    context = {
+        'intro': content_dict.get('intro'),
+        'kimchi': content_dict.get('kimchi'),
+        'kimbap': content_dict.get('kimbap'),
+        'tteokbokki': content_dict.get('tteokbokki'),
+        'jjajangmyeon': content_dict.get('jjajangmyeon'),
+        'soju': content_dict.get('soju'),
+        'footer': content_dict.get('footer'),
+    }
+    return render(request, 'booking/menu_page.html', context)
+
 
 # Регистрация
 def register_user(request):
@@ -101,6 +118,7 @@ def register_user(request):
             })
     return redirect("home")
 
+
 # Подтверждение email
 def verify_email(request, uidb64, token):
     try:
@@ -146,12 +164,10 @@ def login_user(request):
 def logout_user(request):
     logout(request)
     return redirect("home")
-git add .
-git commit -m "Fix"
-git push -u origin feature/fix
+
 
 # Бронирование
-def booking_view(request, booking_id=None):
+def booking_page(request, booking_id=None):
     """
     Универсальный view для бронирования:
     - Для неавторизованных: информационная страница booking_page.html
@@ -215,14 +231,31 @@ def booking_view(request, booking_id=None):
             return redirect('personal_account')
 
         except ValidationError as e:
-            messages.error(request, f'Ошибка при бронировании: {str(e)}')
+            messages.error(request, f'Ошибка при бронировании: {str(e)}', extra_tags='booking error')
             return redirect('home')  # Возвращаем на главную, где есть модалка
         except Exception as e:
-            messages.error(request, f'Ошибка при бронировании: {str(e)}')
+            messages.error(request, f'Ошибка при бронировании: {str(e)}', extra_tags='booking error')
             return redirect('home')  # Возвращаем на главную, где есть модалка
 
     # GET запрос для авторизованных не должен сюда попадать (они используют модалку)
     return redirect('home')
+
+
+# Отмена бронирования
+@login_required
+def cancel_booking(request, booking_id):
+    try:
+        booking = Booking.objects.get(id=booking_id, user=request.user)
+        if booking.is_active:
+            booking.is_active = False
+            booking.save()
+        else:
+            messages.error(request, 'Это бронирование уже отменено.')
+    except Booking.DoesNotExist:
+        messages.error(request, 'Бронирование не найдено.')
+
+    return redirect('personal_account')
+
 
 def get_available_slots(request):
     """
@@ -239,6 +272,20 @@ def get_available_slots(request):
             return JsonResponse({'error': 'Неверный формат даты'}, status=400)
     return JsonResponse({'error': 'Дата не указана'}, status=400)
 
+
+def get_capacity_info(request):
+    """API для получения информации о свободных местах"""
+    if request.method == 'GET':
+        selected_date = request.GET.get('date')
+        selected_time = request.GET.get('time')
+
+        if selected_date and selected_time:
+            capacity_info = Booking.get_capacity_info(selected_date, selected_time)
+            return JsonResponse(capacity_info)
+
+    return JsonResponse({'error': 'Invalid request'})
+
+
 # Аккаунт
 @login_required
 def personal_account(request):
@@ -254,23 +301,7 @@ def personal_account(request):
     })
 
 
-# Отмена бронирования
-@login_required
-def cancel_booking(request, booking_id):
-    try:
-        booking = Booking.objects.get(id=booking_id, user=request.user)
-        if booking.is_active:
-            booking.is_active = False
-            booking.save()
-            messages.success(request, f'Бронирование на {booking.date} в {booking.time} отменено.')
-        else:
-            messages.error(request, 'Это бронирование уже отменено.')
-    except Booking.DoesNotExist:
-        messages.error(request, 'Бронирование не найдено.')
-
-    return redirect('personal_account')
-
-
+# Обратная связь
 def send_feedback(request):
     if request.method == 'POST':
         name = request.POST.get('name')

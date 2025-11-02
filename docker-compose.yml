@@ -1,0 +1,28 @@
+# docker-compose.yml для продакшена
+services:
+  web:
+    build: .
+    ports:
+      - "8000:8000"
+    environment:
+      - DEBUG=False
+      - DATABASE_URL=sqlite:///db.sqlite3
+    command: gunicorn soju_seoul.wsgi:application --bind 0.0.0.0:8000
+
+environment:
+  - DOCKER_CONTAINER=True
+  - POSTGRES_DB=soju_seoul_db
+  - POSTGRES_USER=user
+  - POSTGRES_PASSWORD=password
+  # База данных для продакшена (закомментирована для разработки)
+  # db:
+  #   image: postgres:15
+  #   environment:
+  #     - POSTGRES_DB=soju_seoul_db
+  #     - POSTGRES_USER=user
+  #     - POSTGRES_PASSWORD=password
+  #   volumes:
+  #     - postgres_data:/var/lib/postgresql/data/
+
+# volumes:
+#   postgres_data:

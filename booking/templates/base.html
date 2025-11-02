@@ -163,11 +163,11 @@
                     <div class="mb-3">
                         <label class="form-label">Дата</label>
                         <input type="date" name="date" class="form-control" id="bookingDate" required
-                               min="{% now 'Y-m-d' %}">
+                               min="{% now 'Y-m-d' %}" onchange="updateCapacityInfo()">
                     </div>
                     <div class="mb-3">
                         <label class="form-label">Время</label>
-                        <select name="time" class="form-control" id="bookingTime" required>
+                        <select name="time" class="form-control" id="bookingTime" required onchange="updateCapacityInfo()">
                             <option value="">Выберите время</option>
                             <option value="10:00">10:00</option>
                             <option value="12:00">12:00</option>
@@ -181,13 +181,21 @@
                     <div class="mb-3">
                         <label class="form-label">Количество гостей</label>
                         <input type="number" name="guests" class="form-control" id="bookingGuests"
-                               min="1" max="20" required>
+                               min="1" max="20" required onchange="validateGuests()">
+                        <div class="form-text" id="guestsHelp">
+                            Выберите дату и время для отображения свободных мест
+                        </div>
                     </div>
                     <div class="mb-3">
                         <label class="form-label">Телефон</label>
                         <input type="tel" name="phone" class="form-control" id="bookingPhone"
                                placeholder="+7 (XXX) XXX-XX-XX">
                     </div>
+                    <div class="mb-3">
+                        <label class="form-label">Комментарий (необязательно)</label>
+                        <textarea name="comment" class="form-control" id="bookingComment" rows="2" placeholder="Особые пожелания..."></textarea>
+                    </div>
+
                     <button type="submit" class="btn btn-dark w-100" id="bookingSubmit">
                         Забронировать
                     </button>
@@ -196,7 +204,6 @@
         </div>
     </div>
 </div>
-
 <!-- Модалка обратной связи -->
 <div class="modal fade" id="feedbackModal" tabindex="-1" aria-labelledby="feedbackModalLabel" aria-hidden="true">
     <div class="modal-dialog modal-dialog-centered">
@@ -291,8 +298,155 @@ console.log('Messages:', [
     {% endfor %}
 ]);
 {% endif %}
-</script>
 
+// Функция для заполнения модалки данными при редактировании
+function fillBookingModal(bookingId, date, time, guests, phone, comment) {
+    console.log('fillBookingModal called with:', {bookingId, date, time, guests, phone, comment});
+
+    document.getElementById('bookingId').value = bookingId;
+    document.getElementById('bookingDate').value = date;
+    document.getElementById('bookingTime').value = time;
+    document.getElementById('bookingGuests').value = guests;
+    document.getElementById('bookingPhone').value = phone;
+    document.getElementById('bookingComment').value = comment || '';
+
+    // Меняем action формы, текст кнопки и заголовка
+    const form = document.getElementById('bookingForm');
+    const submitBtn = document.getElementById('bookingSubmit');
+    const modalTitle = document.getElementById('bookingModalTitle');
+
+    // Для редактирования используем другой URL
+    form.action = `/booking/edit/${bookingId}/`;
+    submitBtn.textContent = 'Сохранить изменения';
+    modalTitle.textContent = 'Изменить бронирование';
+
+    console.log('Form action changed to:', form.action);
+    console.log('Button text changed to:', submitBtn.textContent);
+
+    // Обновляем информацию о местах
+    updateCapacityInfo();
+}
+
+// Функция для очистки модалки при открытии нового бронирования
+function clearBookingModal() {
+    console.log('clearBookingModal called');
+
+    document.getElementById('bookingId').value = '';
+    document.getElementById('bookingDate').value = '';
+    document.getElementById('bookingTime').value = '';
+    document.getElementById('bookingGuests').value = '';
+    document.getElementById('bookingPhone').value = '';
+    document.getElementById('bookingComment').value = '';
+
+    // Восстанавливаем стандартные action, текст кнопки и заголовка
+    const form = document.getElementById('bookingForm');
+    const submitBtn = document.getElementById('bookingSubmit');
+    const modalTitle = document.getElementById('bookingModalTitle');
+
+    form.action = "{% url 'booking_page' %}";
+    submitBtn.textContent = 'Забронировать';
+    modalTitle.textContent = 'Забронировать стол';
+
+    document.getElementById('guestsHelp').textContent = 'Выберите дату и время для отображения свободных мест';
+    document.getElementById('guestsHelp').className = 'form-text';
+
+    console.log('Form action restored to:', form.action);
+    console.log('Button text restored to:', submitBtn.textContent);
+}
+
+// Функция для обновления информации о свободных местах
+function updateCapacityInfo() {
+    const date = document.getElementById('bookingDate').value;
+    const time = document.getElementById('bookingTime').value;
+    const guestsHelp = document.getElementById('guestsHelp');
+    const bookingId = document.getElementById('bookingId').value;
+
+    const isEditing = bookingId !== '';
+
+    if (date && time) {
+        fetch(`/get-capacity-info/?date=${date}&time=${time}`)
+            .then(response => response.json())
+            .then(data => {
+                if (isEditing) {
+                    guestsHelp.textContent = `Всего мест: ${data.total_capacity}. При изменении даты/времени проверяется доступность`;
+                    guestsHelp.className = 'form-text text-info';
+                } else {
+                    if (data.available_capacity > 0) {
+                        guestsHelp.textContent = `Осталось свободных мест: ${data.available_capacity}`;
+                        guestsHelp.className = 'form-text text-success';
+                    } else {
+                        guestsHelp.textContent = 'Нет свободных мест';
+                        guestsHelp.className = 'form-text text-danger';
+                    }
+
+                    const guestsInput = document.getElementById('bookingGuests');
+                    guestsInput.max = Math.min(20, data.available_capacity);
+
+                    if (data.available_capacity > 0 && !guestsInput.value) {
+                        guestsInput.value = 1;
+                    }
+                }
+            })
+            .catch(error => {
+                console.error('Error:', error);
+                guestsHelp.textContent = 'Ошибка загрузки данных о местах';
+                guestsHelp.className = 'form-text text-danger';
+            });
+    } else {
+        guestsHelp.textContent = 'Выберите дату и время для отображения свободных мест';
+        guestsHelp.className = 'form-text';
+    }
+}
+
+// Функция для валидации количества гостей
+function validateGuests() {
+    const guestsInput = document.getElementById('bookingGuests');
+    const guestsHelp = document.getElementById('guestsHelp');
+    const bookingId = document.getElementById('bookingId').value;
+
+    if (bookingId !== '') {
+        guestsInput.setCustomValidity('');
+        return;
+    }
+
+    const helpText = guestsHelp.textContent;
+    const availableMatch = helpText.match(/Осталось свободных мест: (\d+)/);
+    const availableSeats = availableMatch ? parseInt(availableMatch[1]) : 0;
+
+    if (availableSeats > 0 && guestsInput.value > availableSeats) {
+        guestsInput.setCustomValidity(`Нельзя забронировать больше ${availableSeats} мест`);
+        guestsHelp.textContent = `Нельзя забронировать больше ${availableSeats} мест`;
+        guestsHelp.className = 'form-text text-danger';
+    } else {
+        guestsInput.setCustomValidity('');
+        if (availableSeats > 0) {
+            guestsHelp.textContent = `Осталось свободных мест: ${availableSeats}`;
+            guestsHelp.className = 'form-text text-success';
+        }
+    }
+}
+
+// Инициализация при загрузке страницы
+document.addEventListener('DOMContentLoaded', function() {
+    const dateInput = document.getElementById('bookingDate');
+    const timeInput = document.getElementById('bookingTime');
+
+    const today = new Date().toISOString().split('T')[0];
+    dateInput.min = today;
+
+    dateInput.addEventListener('change', updateCapacityInfo);
+    timeInput.addEventListener('change', updateCapacityInfo);
+
+    const bookingModal = document.getElementById('bookingModal');
+    if (bookingModal) {
+        bookingModal.addEventListener('show.bs.modal', function () {
+            if (document.getElementById('bookingId').value === '') {
+                clearBookingModal();
+            }
+        });
+    }
+});
+</script>
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
 
     {% block scripts %}

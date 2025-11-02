@@ -1,7 +1,22 @@
 ﻿from django.contrib.auth.models import AbstractBaseUser, BaseUserManager, PermissionsMixin
-from django.db import models
 from django.core.exceptions import ValidationError
 from django.utils import timezone
+from django.db import models
+
+
+class MenuContent(models.Model):
+    section = models.CharField(max_length=50, unique=True, verbose_name='Секция')
+    title_kr = models.CharField(max_length=200, verbose_name='Заголовок корейский')
+    title_ru = models.CharField(max_length=200, verbose_name='Заголовок русский')
+    content_ru = models.TextField(verbose_name='Текст русский')
+    image = models.ImageField(upload_to='menu/', blank=True, null=True, verbose_name='Изображение')
+
+    class Meta:
+        verbose_name = 'Контент меню'
+        verbose_name_plural = 'Контент меню'
+
+    def __str__(self):
+        return self.section
 
 
 class CustomUserManager(BaseUserManager):
@@ -97,12 +112,10 @@ class Booking(models.Model):
     phone = models.CharField(max_length=20, blank=True)
     comment = models.TextField(blank=True)
 
-    # Поле is_active для бронирования
     is_active = models.BooleanField(default=True, verbose_name='Активное бронирование')
 
     class Meta:
         ordering = ['-date', '-time']
-        # Уникальность даты и времени для активных бронирований
         constraints = [
             models.UniqueConstraint(
                 fields=['date', 'time'],
@@ -116,8 +129,8 @@ class Booking(models.Model):
 
     def clean(self):
         """Валидация при сохранении"""
-        # Проверяем, что время еще не занято
         if self.is_active:
+            # Проверяем, что время еще не занято
             conflicting_booking = Booking.objects.filter(
                 date=self.date,
                 time=self.time,
@@ -127,6 +140,13 @@ class Booking(models.Model):
             if conflicting_booking:
                 raise ValidationError(
                     f"Время {self.time} на дату {self.date} уже занято"
+                )
+
+            # Проверяем доступность мест
+            available_capacity = self.get_available_capacity(self.date, self.time)
+            if available_capacity < self.guests:
+                raise ValidationError(
+                    f"Недостаточно свободных мест. Доступно: {available_capacity}"
                 )
 
         # Проверяем, что у пользователя нет других активных бронирований
@@ -158,6 +178,45 @@ class Booking(models.Model):
 
         return available_slots
 
+    @classmethod
+    def get_available_capacity(cls, date, time):
+        """Возвращает количество свободных мест на указанные дату и время"""
+        try:
+            capacity_settings = RestaurantCapacity.objects.first()
+            total_capacity = capacity_settings.total_capacity if capacity_settings else 50
+        except (RestaurantCapacity.DoesNotExist, AttributeError):
+            total_capacity = 50
+
+        # Суммируем всех гостей на выбранные дату и время
+        booked_guests = cls.objects.filter(
+            date=date,
+            time=time,
+            is_active=True
+        ).aggregate(total=models.Sum('guests'))['total'] or 0
+
+        available = total_capacity - booked_guests
+        return max(0, available)
+
+    @classmethod
+    def get_capacity_info(cls, date, time):
+        """Полная информация о вместимости"""
+        available = cls.get_available_capacity(date, time)
+
+        try:
+            capacity_settings = RestaurantCapacity.objects.first()
+            total_capacity = capacity_settings.total_capacity if capacity_settings else 50
+            max_per_booking = capacity_settings.max_guests_per_booking if capacity_settings else 10
+        except (RestaurantCapacity.DoesNotExist, AttributeError):
+            total_capacity = 50
+            max_per_booking = 10
+
+        return {
+            'available_capacity': available,
+            'total_capacity': total_capacity,
+            'max_per_booking': max_per_booking,
+            'is_available': available > 0
+        }
+
     @property
     def is_upcoming(self):
         """Проверяет, является ли бронирование будущим"""
@@ -168,3 +227,23 @@ class Booking(models.Model):
             datetime.time.fromisoformat(self.time)
         )
         return booking_datetime > timezone.now()
+
+
+class RestaurantCapacity(models.Model):
+    """Модель для хранения вместимости ресторана"""
+    total_capacity = models.PositiveIntegerField(default=50, verbose_name='Общее количество мест')
+    max_guests_per_booking = models.PositiveIntegerField(default=10,
+                                                         verbose_name='Максимум гостей в одном бронировании')
+
+    class Meta:
+        verbose_name = 'Вместимость ресторана'
+        verbose_name_plural = 'Вместимость ресторана'
+
+    def save(self, *args, **kwargs):
+        # Разрешаем только одну запись
+        if not self.pk and RestaurantCapacity.objects.exists():
+            return
+        super().save(*args, **kwargs)
+
+    def __str__(self):
+        return f"Вместимость: {self.total_capacity} мест"

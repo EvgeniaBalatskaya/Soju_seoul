@@ -1,9 +1,14 @@
-﻿from django.contrib import admin
-from django.contrib.auth.admin import UserAdmin
-from django import forms
+﻿from django.contrib.auth.admin import UserAdmin
 from django.contrib import messages
 from django.contrib.auth.forms import UserChangeForm  # Добавьте этот импорт
 from .models import CustomUser, Booking
+from django.contrib import admin
+from .models import MenuContent
+
+
+@admin.register(MenuContent)
+class MenuContentAdmin(admin.ModelAdmin):
+    list_display = ['section', 'title_ru', 'title_kr']
 
 
 class CustomUserChangeForm(UserChangeForm):  # Наследуем от UserChangeForm вместо ModelForm
